@@ -1,39 +1,111 @@
-# ShippingCalculator
+# Shipping Calculator
 
-TODO: Delete this and the text below, and describe your gem
+This Ruby-based tool calculates and returns the best shipping route based on sailing, rate, and currency exchange data from a JSON file (`response.json`).
+The application is packaged in a lightweight Docker image for easy development and execution.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/shipping_calculator`. To experiment with that code, run `bin/console` for an interactive prompt.
+---
 
-## Installation
+## 🐳 Docker Setup
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
-```
-
-If bundler is not being used to manage dependencies, install the gem by executing:
+You can either run commands directly using `docker compose` or use the provided `Makefile` for convenience.
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+make build        # Builds the Docker image
+make bash         # Opens a shell inside the app container
+make specs        # Runs the RSpec test suite
 ```
 
-## Usage
+### 🔧 Using docker compose directly
 
-TODO: Write usage instructions here
+```bash
+docker compose build
+docker compose run --rm app bash
+docker compose run --rm app bundle exec rspec
+```
 
-## Development
+This will install Ruby 3.4, dependencies, and bundle your gems.
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+---
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## 🚀 How to Run
 
-## Contributing
+### Option 1: Run with arguments
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/shipping_calculator.
+You can pass the origin, destination, and search criteria as arguments:
 
-## License
+```bash
+docker compose run --rm app ruby bin/run CNSHA NLRTM cheapest-direct
+```
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+### Option 2: Run interactively
+
+If you don’t pass arguments, the program will prompt you for them:
+
+```bash
+docker compose run --rm app ruby bin/run
+```
+
+---
+
+## 🧪 Running the test suite
+
+Run RSpec inside the container:
+
+
+```bash
+make specs
+# or
+docker compose run --rm app bundle exec rspec
+```
+
+This will execute all tests defined in `spec/`.
+
+---
+
+## 📁 Project Structure
+
+```
+bin/
+  run                    # CLI entry point
+lib/
+  shipping_calculator/
+    models/              # Domain models (e.g., Sailing)
+    services/            # Application services (e.g., RouteFinder)
+    rate_converter.rb    # Currency conversion logic
+    service.rb           # Main orchestrator
+spec/
+  shipping_calculator/   # RSpec tests
+response.json            # Sample data input
+```
+
+---
+
+## 💡 Notes
+
+- Gems are cached in a Docker volume (`bundle_data`) to speed up rebuilds.
+- You don’t need to install Ruby or Bundler locally.
+- You can use `docker compose run --rm app bash` to open a development shell inside the container.
+
+---
+
+## ✨ Example
+
+```bash
+docker compose run --rm app ruby bin/run CNSHA NLRTM cheapest-direct
+```
+
+Returns:
+
+```json
+[
+  {
+    "origin_port": "CNSHA",
+    "destination_port": "NLRTM",
+    "departure_date": "2022-01-30",
+    "arrival_date": "2022-03-05",
+    "sailing_code": "MNOP",
+    "rate": "456.78",
+    "rate_currency": "USD"
+  }
+]
+```

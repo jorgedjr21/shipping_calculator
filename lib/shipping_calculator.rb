@@ -11,16 +11,11 @@ module ShippingCalculator
   class Error < StandardError; end
   # Your code goes here...
 
-  def self.run
-    puts "Enter origin port:"
-    origin = gets.strip
-
-    puts "Enter destination port:"
-    destination = gets.strip
-
-    puts "Enter the criteria"
-    criteria = gets.strip
-
+  def self.run(origin = nil, destination = nil, criteria = nil)
+    origin ||= prompt("Enter the origin:")
+    destination ||= prompt("Enter the destination:")
+    criteria ||= prompt("Enter the criteria:")
+    
     data = JSON.parse(File.read("./response.json"))
     service = ShippingCalculator::Service.new(data)
 
@@ -28,6 +23,11 @@ module ShippingCalculator
 
     puts "\nResult:"
     puts JSON.pretty_generate(result)
+  end
+
+  def self.prompt(message)
+    print "#{message} "
+    gets.strip
   end
 end
 # rubocop:enable Style/Documentation

@@ -9,4 +9,4 @@ COPY . .
 
 RUN bundle install
 
-CMD ["/bin","/bash"]
+CMD ["/bin/bash"]
