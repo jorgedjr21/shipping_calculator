@@ -15,7 +15,7 @@ module ShippingCalculator
     origin ||= prompt("Enter the origin:")
     destination ||= prompt("Enter the destination:")
     criteria ||= prompt("Enter the criteria:")
-    
+
     data = JSON.parse(File.read("./response.json"))
     service = ShippingCalculator::Service.new(data)
 

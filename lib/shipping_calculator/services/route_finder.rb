@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "date"
 require_relative "../models/sailing"
 require_relative "../rate_converter"
 
@@ -40,23 +41,22 @@ module ShippingCalculator
 
       def find_cheapest_indirect(origin, destination)
         routes = []
+
         @sailings.each do |s1|
           next unless s1["origin_port"] == origin
 
           @sailings.each do |s2|
-            next unless s2["origin_port"] == s1["destination_port"]
+            next unless s2["origin_port"]      == s1["destination_port"]
             next unless s2["destination_port"] == destination
-
             next if Date.parse(s2["departure_date"]) < Date.parse(s1["arrival_date"])
 
             leg1 = build_sailing(s1)
             leg2 = build_sailing(s2)
-
-            routes << [leg1, leg2] if s1 && s2
+            routes << [leg1, leg2] if leg1 && leg2
           end
-
-          routes.min_by { |legs| legs.sum(&:eur_rate) }
         end
+
+        routes.min_by { |legs| legs.sum(&:eur_rate) }
       end
 
       def build_rate_map(rates)
@@ -64,7 +64,7 @@ module ShippingCalculator
       end
 
       def build_sailing(sailing_data)
-        rate_data = @rate_map[sailing_data["sailing_code"]] or return
+        rate_data = @rate_map[sailing_data["sailing_code"]] || return
         eur_value = @converter.to_eur(
           rate_data["rate"],
           rate_data["rate_currency"],
