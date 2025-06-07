@@ -6,6 +6,7 @@
 /pkg/
 /spec/reports/
 /tmp/
+!/coverage/lcov/.keep
 
 # rspec failure tracking
 .rspec_status
