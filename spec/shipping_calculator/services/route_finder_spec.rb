@@ -84,16 +84,16 @@ RSpec.describe ShippingCalculator::Services::RouteFinder do
 
   describe "#find_cheapest_direct" do
     it "returns the cheapest sailing converted to EUR" do
-      result = finder.find_cheapest_direct("CNSHA", "NLRTM")
+      result = finder.find_cheapest_direct("CNSHA", "NLRTM").first
 
       expect(result).to be_a(ShippingCalculator::Models::Sailing)
       expect(result.sailing_code).to eq("MNOP")
       expect(result.eur_rate).to be_within(0.01).of(410.10)
     end
 
-    it "returns nil if no direct route matches" do
+    it "returns empty if no direct route matches" do
       result = finder.find_cheapest_direct("CNSHA", "BRSSZ")
-      expect(result).to be_nil
+      expect(result).to eq([])
     end
   end
 
@@ -179,8 +179,8 @@ RSpec.describe ShippingCalculator::Services::RouteFinder do
     end
 
     context "when there is no route" do
-      it "must return nil" do
-        expect(finder.find_cheapest("ANY", "THING")).to be_nil
+      it "must returns empty" do
+        expect(finder.find_cheapest("ANY", "THING")).to eq([])
       end
     end
 
@@ -219,8 +219,8 @@ RSpec.describe ShippingCalculator::Services::RouteFinder do
           "2022-01-09" => { "usd" => 1.0 }
         }
       end
-      it "ignores legs that are out of sequence and returns nil" do
-        expect(finder.find_cheapest("A", "B")).to be_nil
+      it "ignores legs that are out of sequence and returns empty" do
+        expect(finder.find_cheapest("A", "B")).to eq([])
       end
     end
   end

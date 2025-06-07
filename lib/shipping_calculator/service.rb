@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ShippingCalculator
+  # Orchestrates route calculations and returns results for given criteria
   class Service
     attr_reader :sailings, :rates, :exchange_rates
 
@@ -20,10 +21,10 @@ module ShippingCalculator
       case criteria
       when "cheapest-direct"
         sailing = finder.find_cheapest_direct(origin, destination)
-        sailing ? [sailing.to_h] : []
+        sailing.map(&:to_h)
       when "cheapest"
         sailing = finder.find_cheapest(origin, destination)
-        sailing ? sailing.map(&:to_h) : []
+        sailing.map(&:to_h)
       else
         []
       end

@@ -165,7 +165,7 @@ RSpec.describe ShippingCalculator::Service do
 
     context "with unsupported criteria" do
       it "returns an empty array" do
-        result = service.call("CNSHA", "NLRTM", "cheapest")
+        result = service.call("CNSHA", "NLRTM", "unsupported")
         expect(result).to eq([])
       end
     end

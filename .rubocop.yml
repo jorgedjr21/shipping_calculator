@@ -10,3 +10,6 @@ Style/StringLiteralsInInterpolation:
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
+
+Metrics/MethodLength:
+  Max: 15

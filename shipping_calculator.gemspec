@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "TODO: Put your gem's website or public repo URL here."
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
-  spec.executables << 'run'
+  spec.executables << "run"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
