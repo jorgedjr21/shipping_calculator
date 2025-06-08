@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "shipping_calculator/services/route_calculators/fatest_direct"
+require "shipping_calculator/services/route_calculators/fastest_direct"
 
-RSpec.describe ShippingCalculator::Services::RouteCalculators::FatestDirect do
+RSpec.describe ShippingCalculator::Services::RouteCalculators::FastestDirect do
   let(:sailings) do
     [
       {
@@ -42,13 +42,13 @@ RSpec.describe ShippingCalculator::Services::RouteCalculators::FatestDirect do
 
   subject(:calculator) { described_class.new(sailings, rates, converter) }
 
-  it "picks the fatest direct sailing" do
+  it "picks the fastest direct sailing" do
     result = calculator.calculate("A", "B")
     expect(result.map(&:sailing_code)).to eq(["FAST"])
     expect(result.first.duration).to eq(2) # 2022-01-01 -> 2022-01-03
   end
 
-  context "when there is more than one fatest route" do
+  context "when there is more than one fastest route" do
     let(:sailings) do
       super().push(
         {

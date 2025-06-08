@@ -32,6 +32,22 @@ module ShippingCalculator
             eur_rate: eur_value
           )
         end
+
+        def first_legs(origin)
+          @sailings.select { |s| s["origin_port"] == origin }
+        end
+
+        def second_legs(leg1, destination)
+          @sailings.select do |leg2|
+            leg2["origin_port"] == leg1["destination_port"] &&
+              leg2["destination_port"] == destination &&
+              valid_dates?(leg1, leg2)
+          end
+        end
+
+        def valid_dates?(leg1, leg2)
+          Date.parse(leg2["departure_date"]) >= Date.parse(leg1["arrival_date"])
+        end
       end
     end
   end

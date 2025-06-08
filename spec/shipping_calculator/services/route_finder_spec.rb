@@ -224,4 +224,66 @@ RSpec.describe ShippingCalculator::Services::RouteFinder do
       end
     end
   end
+
+  describe "#find_fastest" do
+    let(:sailings) do
+      [
+        # direct slow: 5 days
+        {
+          "origin_port" => "A",
+          "destination_port" => "B",
+          "departure_date" => "2022-01-01",
+          "arrival_date" => "2022-01-06",
+          "sailing_code" => "DIR"
+        },
+        # indirect fast: 1 + 1 = 2 days
+        {
+          "origin_port" => "A",
+          "destination_port" => "X",
+          "departure_date" => "2022-01-01",
+          "arrival_date" => "2022-01-02",
+          "sailing_code" => "L1"
+        },
+        {
+          "origin_port" => "X",
+          "destination_port" => "B",
+          "departure_date" => "2022-01-03",
+          "arrival_date" => "2022-01-04",
+          "sailing_code" => "L2"
+        }
+      ]
+    end
+
+    let(:rates) do
+      [
+        { "sailing_code" => "DIR", "rate" => "0.0", "rate_currency" => "EUR" },
+        { "sailing_code" => "L1",  "rate" => "0.0", "rate_currency" => "EUR" },
+        { "sailing_code" => "L2",  "rate" => "0.0", "rate_currency" => "EUR" }
+      ]
+    end
+
+    let(:exchange_rates) do
+      {
+        "2022-01-01" => { "usd" => 2.0 },
+        "2022-01-03" => { "usd" => 2.0 }
+      }
+    end
+
+    it "chooses the fastest indirect route over a slower direct" do
+      result = finder.find_fastest("A", "B")
+      expect(result.map(&:sailing_code)).to contain_exactly("L1", "L2")
+      expect(result.sum(&:duration)).to eq(2)
+    end
+
+    it "falls back to direct when direct is fastest" do
+      sailings[0]["arrival_date"] = "2022-01-02"
+      result = finder.find_fastest("A", "B")
+      expect(result.map(&:sailing_code)).to contain_exactly("DIR")
+      expect(result.first.duration).to eq(1)
+    end
+
+    it "returns an empty array when no route exists" do
+      expect(finder.find_fastest("X", "Y")).to eq([])
+    end
+  end
 end

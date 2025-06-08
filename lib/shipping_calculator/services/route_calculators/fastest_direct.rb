@@ -4,7 +4,7 @@ module ShippingCalculator
   module Services
     module RouteCalculators
       # Calculates the fastest direct sailing between two ports .
-      class FatestDirect < BaseCalculator
+      class FastestDirect < BaseCalculator
         def calculate(origin, destination)
           legs = @sailings
                  .select { |s| s["origin_port"] == origin && s["destination_port"] == destination }
