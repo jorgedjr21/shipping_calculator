@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "date"
 require_relative "base_calculator"
 
 module ShippingCalculator

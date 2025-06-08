@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "date"
 require_relative "../rate_converter"
 require_relative "route_calculators/cheapest"
 require_relative "route_calculators/direct"

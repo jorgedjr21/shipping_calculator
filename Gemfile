@@ -13,7 +13,7 @@ gem "rspec", "~> 3.0"
 gem "pry-byebug"
 gem "rubocop", "~> 1.21"
 group :test do
-  gem 'simplecov',       require: false
-  gem 'simplecov-lcov',  require: false
+  gem "simplecov",       require: false
+  gem "simplecov-lcov",  require: false
   gem "undercover"
 end

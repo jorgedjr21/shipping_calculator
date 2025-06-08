@@ -4,6 +4,7 @@ require_relative "shipping_calculator/version"
 require_relative "shipping_calculator/service"
 require_relative "shipping_calculator/models/sailing"
 require_relative "shipping_calculator/services/route_finder"
+require "date"
 
 require "json"
 # rubocop:disable Style/Documentation

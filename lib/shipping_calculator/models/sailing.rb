@@ -20,6 +20,10 @@ module ShippingCalculator
         @eur_rate         = eur_rate
       end
 
+      def duration
+        (Date.parse(arrival_date) - Date.parse(departure_date)).to_i
+      end
+
       def to_h
         {
           origin_port: origin_port,
