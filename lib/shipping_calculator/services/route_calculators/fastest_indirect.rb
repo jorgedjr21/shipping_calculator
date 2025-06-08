@@ -8,7 +8,11 @@ module ShippingCalculator
       # Calculates the fastest indirect sailing between two ports .
       class FastestIndirect < Indirect
         def calculate(origin, destination)
-          routes = build_indirect_routes(origin, destination)
+          raw_paths = build_indirect_routes(origin, destination, [])
+          routes = raw_paths
+                   .map { |path| path.map { |s| build_sailing(s) } }
+                   .select(&:all?)
+                   .select { |legs| valid_dates?(legs) }
           pick_fastest_routes(routes)
         end
 

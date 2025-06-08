@@ -103,5 +103,73 @@ RSpec.describe ShippingCalculator::Services::RouteCalculators::FastestIndirect d
         expect(calculator.calculate("A", "B")).to eq([])
       end
     end
+
+    context "when calculating n legs route" do
+      let(:rates) do
+        [
+          # Chain1: A1/A2/A3 durations = 2, 3, 1 days
+          { "sailing_code" => "A1", "rate" => "10.0", "rate_currency" => "EUR" },
+          { "sailing_code" => "A2", "rate" => "10.0", "rate_currency" => "EUR" },
+          { "sailing_code" => "A3", "rate" => "10.0", "rate_currency" => "EUR" },
+          # Chain2: B1/B2 durations = 2, 5 days
+          { "sailing_code" => "B1", "rate" => "10.0", "rate_currency" => "EUR" },
+          { "sailing_code" => "B2", "rate" => "10.0", "rate_currency" => "EUR" }
+        ]
+      end
+
+      let(:rate_map)       { rates.to_h { |r| [r["sailing_code"], r] } }
+      let(:exchange_rates) { {} }
+      let(:converter)      { ShippingCalculator::RateConverter.new(exchange_rates:) }
+
+      let(:sailings) do
+        [
+          # Chain1: O → X (2d), X → Y (3d), Y → D (1d)
+          {
+            "origin_port" => "O",
+            "destination_port" => "X",
+            "departure_date" => "2022-01-01",
+            "arrival_date" => "2022-01-03",
+            "sailing_code" => "A1"
+          },
+          {
+            "origin_port" => "X",
+            "destination_port" => "Y",
+            "departure_date" => "2022-01-04",
+            "arrival_date" => "2022-01-07",
+            "sailing_code" => "A2"
+          },
+          {
+            "origin_port" => "Y",
+            "destination_port" => "D",
+            "departure_date" => "2022-01-08",
+            "arrival_date" => "2022-01-09",
+            "sailing_code" => "A3"
+          },
+          # Chain2: O → Z (2d), Z → D (5d)
+          {
+            "origin_port" => "O",
+            "destination_port" => "Z",
+            "departure_date" => "2022-01-01",
+            "arrival_date" => "2022-01-03",
+            "sailing_code" => "B1"
+          },
+          {
+            "origin_port" => "Z",
+            "destination_port" => "D",
+            "departure_date" => "2022-01-04",
+            "arrival_date" => "2022-01-09",
+            "sailing_code" => "B2"
+          }
+        ]
+      end
+
+      it "selects the fastest chain among all possible indirect paths" do
+        result = calculator.calculate("O", "D")
+        codes  = result.map(&:sailing_code)
+
+        expect(codes).to eq(%w[A1 A2 A3])
+        expect(result.sum(&:duration)).to eq(6)
+      end
+    end
   end
 end

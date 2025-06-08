@@ -118,5 +118,66 @@ RSpec.describe ShippingCalculator::Services::RouteCalculators::Indirect do
         expect(calculator.calculate("A", "B")).to eq([])
       end
     end
+
+    context "when calculating n legs route" do
+      let(:rates) do
+        [
+          # A1, A2, A3 form the only valid 3-leg path; cost: 10+20+30 = 60 EUR
+          { "sailing_code" => "A1", "rate" => "10.0", "rate_currency" => "EUR" },
+          { "sailing_code" => "A2", "rate" => "20.0", "rate_currency" => "EUR" },
+          { "sailing_code" => "A3", "rate" => "30.0", "rate_currency" => "EUR" },
+          # a direct but more expensive option
+          { "sailing_code" => "DIR", "rate" => "100.0", "rate_currency" => "EUR" }
+        ]
+      end
+
+      let(:rate_map)       { rates.to_h { |r| [r["sailing_code"], r] } }
+      let(:exchange_rates) { {} }
+      let(:converter)      { ShippingCalculator::RateConverter.new(exchange_rates:) }
+
+      let(:sailings) do
+        [
+          # multi-leg: O → X → Y → D
+          {
+            "origin_port" => "O",
+            "destination_port" => "X",
+            "departure_date" => "2022-01-01",
+            "arrival_date" => "2022-01-02",
+            "sailing_code" => "A1"
+          },
+          {
+            "origin_port" => "X",
+            "destination_port" => "Y",
+            "departure_date" => "2022-01-03",
+            "arrival_date" => "2022-01-04",
+            "sailing_code" => "A2"
+          },
+          {
+            "origin_port" => "Y",
+            "destination_port" => "D",
+            "departure_date" => "2022-01-05",
+            "arrival_date" => "2022-01-06",
+            "sailing_code" => "A3"
+          },
+          # a direct but costly O → D
+          {
+            "origin_port" => "O",
+            "destination_port" => "D",
+            "departure_date" => "2022-01-01",
+            "arrival_date" => "2022-01-02",
+            "sailing_code" => "DIR"
+          }
+        ]
+      end
+
+      it "finds the only 3-leg path and ignores the expensive direct" do
+        result = calculator.calculate("O", "D")
+        codes = result.map(&:sailing_code)
+
+        expect(codes).to eq(%w[A1 A2 A3])
+        total = result.sum(&:eur_rate)
+        expect(total).to be_within(0.01).of(60.0)
+      end
+    end
   end
 end

@@ -8,7 +8,12 @@ module ShippingCalculator
       # Calculates the cheapest sailing route via a single connection.
       class Indirect < BaseCalculator
         def calculate(origin, destination)
-          routes = build_indirect_routes(origin, destination)
+          raw_paths = build_indirect_routes(origin, destination, [])
+          routes = raw_paths
+                   .map { |path| path.map { |s| build_sailing(s) } }
+                   .select(&:all?)
+                   .select { |legs| valid_dates?(legs) }
+
           pick_best_route(routes)
         end
 
@@ -19,17 +24,22 @@ module ShippingCalculator
           best || []
         end
 
-        def build_indirect_routes(origin, destination)
-          first_legs(origin).flat_map do |leg1|
-            second_legs(leg1, destination).map { |leg2| build_pair(leg1, leg2) }.compact
+        def build_indirect_routes(current_port, destination, visited_ports)
+          return [] if visited_ports.include?(current_port)
+
+          visited = visited_ports + [current_port]
+          paths = []
+
+          @sailings.select { |s| s["origin_port"] == current_port }.each do |s|
+            if s["destination_port"] == destination
+              paths << [s]
+            else
+              subpaths = build_indirect_routes(s["destination_port"], destination, visited)
+              subpaths.each { |sp| paths << ([s] + sp) }
+            end
           end
-        end
 
-        def build_pair(leg1, leg2)
-          leg1 = build_sailing(leg1)
-          leg2 = build_sailing(leg2)
-
-          leg1 && leg2 ? [leg1, leg2] : nil
+          paths
         end
       end
     end

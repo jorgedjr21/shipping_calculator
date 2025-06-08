@@ -45,8 +45,10 @@ module ShippingCalculator
           end
         end
 
-        def valid_dates?(leg1, leg2)
-          Date.parse(leg2["departure_date"]) >= Date.parse(leg1["arrival_date"])
+        def valid_dates?(legs)
+          legs.each_cons(2).all? do |l1, l2|
+            Date.parse(l2.departure_date) >= Date.parse(l1.arrival_date)
+          end
         end
       end
     end
