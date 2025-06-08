@@ -28,6 +28,7 @@ module ShippingCalculator
         sailing = finder.find_fastest(origin, destination)
         sailing.map(&:to_h)
       else
+        puts "\nCriteria #{criteria} not allowed!"
         []
       end
     end

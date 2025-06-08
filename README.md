@@ -8,6 +8,7 @@ The application is packaged in a lightweight Docker image for easy development a
 ## 🐳 Docker Setup
 
 You can either run commands directly using `docker compose` or use the provided `Makefile` for convenience.
+It's possible to use docker only as well, but docker compose is recommended.
 
 ```bash
 make build        # Builds the Docker image
@@ -21,6 +22,20 @@ make specs        # Runs the RSpec test suite
 docker compose build
 docker compose run --rm app bash
 docker compose run --rm app bundle exec rspec
+# or
+docker build -t shipping_calculator .
+
+docker run --rm -it \
+  -v "$(pwd)":/app \
+  -w /app \
+  shipping_calculator \
+  bash
+
+docker run --rm \
+  -v "$(pwd)":/app \
+  -w /app \
+  shipping_calculator \
+  bundle exec rspec
 ```
 
 This will install Ruby 3.4, dependencies, and bundle your gems.
@@ -35,6 +50,9 @@ You can pass the origin, destination, and search criteria as arguments:
 
 ```bash
 docker compose run --rm app ruby bin/run CNSHA NLRTM cheapest-direct
+# or
+docker run --rm -v "$(pwd)":/app -w /app shipping_calculator-app ruby bin/run CNSHA NLRTM cheapest-direct
+
 ```
 
 ### Option 2: Run interactively
@@ -43,6 +61,8 @@ If you don’t pass arguments, the program will prompt you for them:
 
 ```bash
 docker compose run --rm app ruby bin/run
+# or
+docker run --rm -it -v "$(pwd)":/app -w /app shipping_calculator ruby bin/run
 ```
 
 ---
@@ -56,6 +76,12 @@ Run RSpec inside the container:
 make specs
 # or
 docker compose run --rm app bundle exec rspec
+# or
+docker run --rm \
+  -v "$(pwd)":/app \
+  -w /app \
+  shipping_calculator \
+  bundle exec rspec
 ```
 
 This will execute all tests defined in `spec/`.
